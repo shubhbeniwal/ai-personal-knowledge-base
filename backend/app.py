@@ -7,6 +7,11 @@ from document_loader import load_pdf
 
 from ingest import ingest_document
 
+from pydantic import BaseModel
+from rag_engine import ask_rag
+
+class QuestionRequest(BaseModel):
+    question: str
 
 app = FastAPI(
     title="AI Personal Knowledge Base",
@@ -55,3 +60,18 @@ async def upload_file(
         "chunks_stored":
         chunk_count
     }
+    
+@app.post("/ask")
+def ask_question(
+    request: QuestionRequest
+):
+
+    answer = ask_rag(
+        request.question
+    )
+
+    return {
+        "question": request.question,
+        "answer": answer
+    }
+    
