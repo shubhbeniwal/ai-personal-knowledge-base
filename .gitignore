@@ -1,15 +1,23 @@
+# Virtual Environment
 venv/
-.venv/
 
+# Environment Variables
 .env
 
+# Python Cache
 __pycache__/
 *.pyc
 
-.vscode/
-.idea/
+# Vector Databases
+chroma_db/
+vector_db/
 
-uploads/
+# Uploaded PDFs
+*.pdf
 
+# Test Files
+test_*.py
+
+# OS Files
 .DS_Store
 Thumbs.db

@@ -1,17 +1,17 @@
 from pypdf import PdfReader
 
 
-def load_pdf(pdf_path):
+def load_pdf(file_path):
 
-    reader = PdfReader(pdf_path)
+    pdf = PdfReader(file_path)
 
     text = ""
 
-    for page in reader.pages:
+    for page in pdf.pages:
 
-        extracted = page.extract_text()
+        page_text = page.extract_text()
 
-        if extracted:
-            text += extracted + "\n"
+        if page_text:
+            text += page_text + "\n"
 
     return text

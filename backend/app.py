@@ -5,6 +5,8 @@ import os
 
 from document_loader import load_pdf
 
+from ingest import ingest_document
+
 
 app = FastAPI(
     title="AI Personal Knowledge Base",
@@ -27,16 +29,11 @@ def health():
     }
     
 @app.post("/upload")
-async def upload_document(
+async def upload_file(
     file: UploadFile = File(...)
 ):
 
-    os.makedirs(
-        "uploads",
-        exist_ok=True
-    )
-
-    file_path = f"uploads/{file.filename}"
+    file_path = file.filename
 
     with open(
         file_path,
@@ -47,12 +44,14 @@ async def upload_document(
             await file.read()
         )
 
-    document_text = load_pdf(
+    chunk_count = ingest_document(
         file_path
     )
 
     return {
-        "filename": file.filename,
-        "characters": len(document_text),
-        "status": "uploaded"
+        "message":
+        "Document Uploaded Successfully",
+
+        "chunks_stored":
+        chunk_count
     }
