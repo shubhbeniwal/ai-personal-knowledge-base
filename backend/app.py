@@ -38,7 +38,17 @@ async def upload_file(
     file: UploadFile = File(...)
 ):
 
-    file_path = file.filename
+    import os
+
+    os.makedirs(
+        "uploads",
+        exist_ok=True
+    )
+
+    file_path = os.path.join(
+        "uploads",
+        file.filename
+    )
 
     with open(
         file_path,
@@ -55,7 +65,7 @@ async def upload_file(
 
     return {
         "message":
-        "Document Uploaded Successfully",
+        f"{file.filename} uploaded successfully",
 
         "chunks_stored":
         chunk_count

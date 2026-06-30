@@ -16,6 +16,9 @@ model = SentenceTransformer(
 )
 
 
+import uuid
+
+
 def store_chunks(chunks):
 
     embeddings = model.encode(
@@ -23,10 +26,8 @@ def store_chunks(chunks):
     ).tolist()
 
     ids = [
-        f"chunk_{i}"
-        for i in range(
-            len(chunks)
-        )
+        str(uuid.uuid4())
+        for _ in chunks
     ]
 
     collection.add(
@@ -46,7 +47,7 @@ def search_chunks(query):
         query_embeddings=[
             query_embedding
         ],
-        n_results=3
+        n_results=5
     )
 
     return "\n".join(
