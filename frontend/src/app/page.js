@@ -10,9 +10,7 @@ export default function Home() {
 
   const [question, setQuestion] = useState("");
 
-  const [answer, setAnswer] = useState("");
-
-  const [sources, setSources] = useState([]);
+  const [chatHistory, setChatHistory] = useState([]);
 
   const uploadFile = async () => {
 
@@ -55,21 +53,37 @@ Chunks Stored: ${response.data.chunks_stored}`
 
   const askQuestion = async () => {
 
-  const response = await axios.post(
-    "http://127.0.0.1:8000/ask",
-    {
-      question
+    if (!question.trim()) return;
+
+    try {
+
+      const userQuestion = question;
+
+      setQuestion("");
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/ask",
+        {
+          question: userQuestion
+        }
+      );
+
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          question: userQuestion,
+          answer: response.data.answer,
+          sources: response.data.sources || []
+        }
+      ]);
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Failed to get answer");
     }
-  );
-
-  setAnswer(
-    response.data.answer
-  );
-
-  setSources(
-    response.data.sources
-  );
-};
+  };
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
@@ -132,36 +146,66 @@ Chunks Stored: ${response.data.chunks_stored}`
             >
               Ask
             </button>
-            
-            
-            <div className="mt-6">
 
-              <h3 className="font-bold mb-2">
-                Answer
-              </h3>
+            <div className="mt-8 space-y-6">
 
-              <p className="mb-4">
-                {answer}
-              </p>
+              {chatHistory.map((chat, index) => (
 
-              <h3 className="font-bold mb-2">
-                Sources
-              </h3>
+                <div
+                  key={index}
+                  className="border rounded-lg p-4 bg-gray-50"
+                >
 
-              <ul>
-                {
-                  (sources || []).map(
-                    (source, index) => (
-                      <li key={index}>
-                        {source}
-                      </li>
-                    )
-                  )
-                }
-              </ul>
+                  <div className="mb-3">
+
+                    <p className="font-bold text-blue-700">
+                      You
+                    </p>
+
+                    <p>
+                      {chat.question}
+                    </p>
+
+                  </div>
+
+                  <div>
+
+                    <p className="font-bold text-green-700">
+                      AI
+                    </p>
+
+                    <p className="mb-3">
+                      {chat.answer}
+                    </p>
+
+                    <div>
+
+                      <p className="font-semibold">
+                        Sources
+                      </p>
+
+                      <ul className="list-disc ml-5">
+
+                        {(chat.sources || []).map(
+                          (source, i) => (
+                            <li key={i}>
+                              {source}
+                            </li>
+                          )
+                        )}
+
+                      </ul>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
 
             </div>
-            
+
           </div>
 
         </div>
