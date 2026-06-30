@@ -1,3 +1,5 @@
+import os
+
 from chromadb import PersistentClient
 
 from sentence_transformers import SentenceTransformer
@@ -33,7 +35,7 @@ def store_chunks(
 
     metadatas = [
         {
-            "source": source
+            "source": os.path.basename(source)
         }
         for _ in chunks
     ]

@@ -10,12 +10,24 @@ from ingest import ingest_document
 from pydantic import BaseModel
 from rag_engine import ask_rag
 
+from fastapi.middleware.cors import CORSMiddleware
+
 class QuestionRequest(BaseModel):
     question: str
 
 app = FastAPI(
     title="AI Personal Knowledge Base",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
@@ -76,12 +88,13 @@ def ask_question(
     request: QuestionRequest
 ):
 
-    answer = ask_rag(
+    result = ask_rag(
         request.question
     )
 
     return {
         "question": request.question,
-        "answer": answer
+        "answer": result["answer"],
+        "sources": result["sources"]
     }
     
