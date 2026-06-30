@@ -1,7 +1,5 @@
 from document_loader import load_pdf
-
 from chunker import create_chunks
-
 from vectorstore import store_chunks
 
 
@@ -16,7 +14,8 @@ def ingest_document(pdf_path):
     )
 
     store_chunks(
-        chunks
+        chunks,
+        pdf_path
     )
 
     return len(chunks)

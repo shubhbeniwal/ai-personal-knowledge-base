@@ -18,7 +18,7 @@ client = Groq(
 
 def ask_rag(question):
 
-    context = search_chunks(
+    context, sources = search_chunks(
         question
     )
 
@@ -44,4 +44,9 @@ Question:
         ]
     )
 
-    return response.choices[0].message.content
+    answer = response.choices[0].message.content
+
+    return {
+        "answer": answer,
+        "sources": sources
+    }

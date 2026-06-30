@@ -15,11 +15,12 @@ model = SentenceTransformer(
     "sentence-transformers/all-MiniLM-L6-v2"
 )
 
-
 import uuid
 
-
-def store_chunks(chunks):
+def store_chunks(
+    chunks,
+    source
+):
 
     embeddings = model.encode(
         chunks
@@ -30,10 +31,18 @@ def store_chunks(chunks):
         for _ in chunks
     ]
 
+    metadatas = [
+        {
+            "source": source
+        }
+        for _ in chunks
+    ]
+
     collection.add(
         ids=ids,
         embeddings=embeddings,
-        documents=chunks
+        documents=chunks,
+        metadatas=metadatas
     )
 
 
@@ -49,7 +58,20 @@ def search_chunks(query):
         ],
         n_results=5
     )
+    
+    print(results)
 
-    return "\n".join(
-        results["documents"][0]
+    documents = results["documents"][0]
+
+    sources = [
+        item["source"]
+        for item in results["metadatas"][0]
+    ]
+
+    context = "\n".join(
+        documents
+    )
+
+    return context, list(
+        set(sources)
     )
