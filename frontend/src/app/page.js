@@ -14,6 +14,8 @@ export default function Home() {
 
   const [documents, setDocuments] = useState([]);
 
+  const [selectedDocuments, setSelectedDocuments] = useState([]);
+
   useEffect(() => {
 
     fetchDocuments();
@@ -39,6 +41,32 @@ export default function Home() {
     }
 
   };
+
+  const toggleDocumentSelection = (
+    documentName
+  ) => {
+
+    setSelectedDocuments((prev) => {
+
+      if (
+        prev.includes(documentName)
+      ) {
+
+        return prev.filter(
+          (doc) => doc !== documentName
+        );
+
+      }
+
+      return [
+        ...prev,
+        documentName
+      ];
+
+    });
+
+  };
+
 
   const deleteDocument = async (
     filename
@@ -118,7 +146,8 @@ Chunks Stored: ${response.data.chunks_stored}`
       const response = await axios.post(
         "http://127.0.0.1:8000/ask",
         {
-          question: userQuestion
+          question: userQuestion,
+          selected_documents: selectedDocuments
         }
       );
 
@@ -193,9 +222,23 @@ Chunks Stored: ${response.data.chunks_stored}`
                       className="flex justify-between items-center mb-2"
                     >
 
-                      <span>
-                        {doc}
-                      </span>
+                      <div className="flex items-center gap-2">
+
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedDocuments.includes(doc)
+                          }
+                          onChange={() =>
+                            toggleDocumentSelection(doc)
+                          }
+                        />
+
+                        <span>
+                          {doc}
+                        </span>
+
+                      </div>
 
                       <button
                         onClick={() =>
@@ -210,7 +253,7 @@ Chunks Stored: ${response.data.chunks_stored}`
 
                   )
                 )}
-                
+
               </ul>
 
             </div>

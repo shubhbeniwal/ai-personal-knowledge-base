@@ -48,19 +48,38 @@ def store_chunks(
     )
 
 
-def search_chunks(query):
+def search_chunks(
+    query,
+    selected_documents=None
+):
 
     query_embedding = model.encode(
         query
     ).tolist()
 
-    results = collection.query(
-        query_embeddings=[
-            query_embedding
-        ],
-        n_results=5
-    )
-    
+    if selected_documents:
+
+        results = collection.query(
+            query_embeddings=[
+                query_embedding
+            ],
+            n_results=5,
+            where={
+                "source": {
+                    "$in": selected_documents
+                }
+            }
+        )
+
+    else:
+
+        results = collection.query(
+            query_embeddings=[
+                query_embedding
+            ],
+            n_results=5
+        )
+
     print(results)
 
     documents = results["documents"][0]

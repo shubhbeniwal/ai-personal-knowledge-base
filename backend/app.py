@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 class QuestionRequest(BaseModel):
     question: str
+    selected_documents: list[str] = []
 
 app = FastAPI(
     title="AI Personal Knowledge Base",
@@ -87,9 +88,15 @@ async def upload_file(
 def ask_question(
     request: QuestionRequest
 ):
+    
+    print(
+        "Selected Documents:",
+        request.selected_documents
+    )
 
     result = ask_rag(
-        request.question
+        request.question,
+        request.selected_documents
     )
 
     return {

@@ -16,10 +16,11 @@ client = Groq(
 )
 
 
-def ask_rag(question):
+def ask_rag(question, selected_documents=None):
 
     context, sources = search_chunks(
-        question
+        question,
+        selected_documents
     )
 
     prompt = f"""
