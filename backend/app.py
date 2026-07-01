@@ -119,3 +119,31 @@ def get_documents():
     return {
         "documents": files
     }
+    
+@app.delete("/documents/{filename}")
+def delete_document(filename: str):
+
+    import os
+
+    file_path = os.path.join(
+        "uploads",
+        filename
+    )
+
+    if os.path.exists(
+        file_path
+    ):
+
+        os.remove(
+            file_path
+        )
+
+        return {
+            "message":
+            f"{filename} deleted"
+        }
+
+    return {
+        "message":
+        "File not found"
+    }

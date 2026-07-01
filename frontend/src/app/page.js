@@ -40,6 +40,30 @@ export default function Home() {
 
   };
 
+  const deleteDocument = async (
+    filename
+  ) => {
+
+    try {
+
+      await axios.delete(
+        `http://127.0.0.1:8000/documents/${filename}`
+      );
+
+      fetchDocuments();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to delete document"
+      );
+
+    }
+
+  };
+
   const uploadFile = async () => {
 
     console.log("Button clicked");
@@ -163,12 +187,30 @@ Chunks Stored: ${response.data.chunks_stored}`
 
                 {documents.map(
                   (doc, index) => (
-                    <li key={index}>
-                      {doc}
+
+                    <li
+                      key={index}
+                      className="flex justify-between items-center mb-2"
+                    >
+
+                      <span>
+                        {doc}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          deleteDocument(doc)
+                        }
+                        className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                      >
+                        Delete
+                      </button>
+
                     </li>
+
                   )
                 )}
-
+                
               </ul>
 
             </div>
