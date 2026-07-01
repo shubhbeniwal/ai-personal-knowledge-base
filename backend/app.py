@@ -97,4 +97,25 @@ def ask_question(
         "answer": result["answer"],
         "sources": result["sources"]
     }
-    
+
+@app.get("/documents")
+def get_documents():
+
+    import os
+
+    uploads_folder = "uploads"
+
+    if not os.path.exists(
+        uploads_folder
+    ):
+        return {
+            "documents": []
+        }
+
+    files = os.listdir(
+        uploads_folder
+    )
+
+    return {
+        "documents": files
+    }

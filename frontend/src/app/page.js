@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function Home() {
@@ -11,6 +11,34 @@ export default function Home() {
   const [question, setQuestion] = useState("");
 
   const [chatHistory, setChatHistory] = useState([]);
+
+  const [documents, setDocuments] = useState([]);
+
+  useEffect(() => {
+
+    fetchDocuments();
+
+  }, []);
+
+  const fetchDocuments = async () => {
+
+    try {
+
+      const response = await axios.get(
+        "http://127.0.0.1:8000/documents"
+      );
+
+      setDocuments(
+        response.data.documents
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
 
   const uploadFile = async () => {
 
@@ -40,6 +68,8 @@ export default function Home() {
         `${response.data.message}
 Chunks Stored: ${response.data.chunks_stored}`
       );
+
+      fetchDocuments();
 
     } catch (error) {
 
@@ -82,6 +112,7 @@ Chunks Stored: ${response.data.chunks_stored}`
       console.error(error);
 
       alert("Failed to get answer");
+
     }
   };
 
@@ -121,6 +152,26 @@ Chunks Stored: ${response.data.chunks_stored}`
             <p className="mt-4 text-green-600 whitespace-pre-line">
               {uploadStatus}
             </p>
+
+            <div className="mt-6">
+
+              <h3 className="font-bold mb-2">
+                Uploaded Documents
+              </h3>
+
+              <ul className="list-disc ml-5">
+
+                {documents.map(
+                  (doc, index) => (
+                    <li key={index}>
+                      {doc}
+                    </li>
+                  )
+                )}
+
+              </ul>
+
+            </div>
 
           </div>
 
