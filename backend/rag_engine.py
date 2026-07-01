@@ -42,7 +42,7 @@ Question:
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
     )
 
     answer = response.choices[0].message.content

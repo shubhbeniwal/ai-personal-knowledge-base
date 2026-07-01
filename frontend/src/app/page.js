@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 export default function Home() {
@@ -12,15 +12,21 @@ export default function Home() {
 
   const [chatHistory, setChatHistory] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
+  const chatEndRef = useRef(null);
+
   const [documents, setDocuments] = useState([]);
 
   const [selectedDocuments, setSelectedDocuments] = useState([]);
 
   useEffect(() => {
 
-    fetchDocuments();
+    chatEndRef.current?.scrollIntoView({
+      behavior: "smooth"
+    });
 
-  }, []);
+  }, [chatHistory]);
 
   const fetchDocuments = async () => {
 
@@ -137,6 +143,8 @@ Chunks Stored: ${response.data.chunks_stored}`
 
     if (!question.trim()) return;
 
+    setLoading(true);
+
     try {
 
       const userQuestion = question;
@@ -160,11 +168,15 @@ Chunks Stored: ${response.data.chunks_stored}`
         }
       ]);
 
+      setLoading(false);
+
     } catch (error) {
 
       console.error(error);
 
       alert("Failed to get answer");
+
+      setLoading(false);
 
     }
   };
@@ -278,12 +290,29 @@ Chunks Stored: ${response.data.chunks_stored}`
 
             <button
               onClick={askQuestion}
+              disabled={loading}
               className="bg-green-600 text-white px-4 py-2 rounded"
             >
-              Ask
+              {loading ? "Generating..." : "Ask"}
             </button>
 
             <div className="mt-8 space-y-6">
+
+              {loading && (
+
+                <div className="border rounded-lg p-4 bg-yellow-50">
+
+                  <p className="font-bold text-green-700">
+                    AI
+                  </p>
+
+                  <p>
+                    Typing...
+                  </p>
+
+                </div>
+
+              )}
 
               {chatHistory.map((chat, index) => (
 
@@ -339,6 +368,8 @@ Chunks Stored: ${response.data.chunks_stored}`
                 </div>
 
               ))}
+
+              <div ref={chatEndRef}></div>
 
             </div>
 
