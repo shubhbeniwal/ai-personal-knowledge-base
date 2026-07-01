@@ -12,6 +12,8 @@ export default function Home() {
 
   const [chatHistory, setChatHistory] = useState([]);
 
+  const [streamingAnswer, setStreamingAnswer] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const chatEndRef = useRef(null);
@@ -151,22 +153,65 @@ Chunks Stored: ${response.data.chunks_stored}`
 
       setQuestion("");
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/ask",
+      setStreamingAnswer("");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/ask-stream",
         {
-          question: userQuestion,
-          selected_documents: selectedDocuments
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            question: userQuestion,
+            selected_documents: selectedDocuments
+          })
         }
       );
 
+      const reader =
+        response.body.getReader();
+
+      const decoder =
+        new TextDecoder();
+
+      let fullAnswer = "";
+
+      while (true) {
+
+        const {
+          done,
+          value
+        } = await reader.read();
+
+        if (done) break;
+
+        const chunk =
+          decoder.decode(value);
+
+        fullAnswer += chunk;
+
+        setStreamingAnswer(
+          fullAnswer
+        );
+
+      }
+
       setChatHistory((prev) => [
+
         ...prev,
+
         {
           question: userQuestion,
-          answer: response.data.answer,
-          sources: response.data.sources || []
+          answer: fullAnswer,
+          sources: []
         }
+
       ]);
+
+      setStreamingAnswer("");
 
       setLoading(false);
 
@@ -297,6 +342,29 @@ Chunks Stored: ${response.data.chunks_stored}`
             </button>
 
             <div className="mt-8 space-y-6">
+
+              {streamingAnswer && (
+
+                <div
+                  className="
+                    border
+                    rounded-lg
+                    p-4
+                    bg-yellow-50
+                  "
+                >
+
+                  <p className="font-bold text-green-700">
+                    AI
+                  </p>
+
+                  <p>
+                    {streamingAnswer}
+                  </p>
+
+                </div>
+
+              )}
 
               {loading && (
 

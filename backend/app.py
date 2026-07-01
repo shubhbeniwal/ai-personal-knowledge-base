@@ -8,9 +8,12 @@ from document_loader import load_pdf
 from ingest import ingest_document
 
 from pydantic import BaseModel
-from rag_engine import ask_rag
+
+from rag_engine import (ask_rag, ask_rag_stream)
 
 from fastapi.middleware.cors import CORSMiddleware
+
+from fastapi.responses import StreamingResponse
 
 class QuestionRequest(BaseModel):
     question: str
@@ -104,6 +107,22 @@ def ask_question(
         "answer": result["answer"],
         "sources": result["sources"]
     }
+    
+@app.post("/ask-stream")
+def ask_stream(
+    request: QuestionRequest
+):
+
+    return StreamingResponse(
+
+        ask_rag_stream(
+            request.question,
+            request.selected_documents
+        ),
+
+        media_type="text/plain"
+
+    )
 
 @app.get("/documents")
 def get_documents():
