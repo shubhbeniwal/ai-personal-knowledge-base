@@ -10,7 +10,8 @@ from memory import (get_summary, update_summary)
 
 from memory_store import (
     save_memory,
-    retrieve_memory
+    retrieve_memory,
+    should_store_memory
 )
 
 
@@ -200,19 +201,9 @@ def ask_rag_stream(
 
             yield text
     
-    new_summary = f"""
-    User: {question}
+    if should_store_memory(question):
 
-    Assistant: {full_answer}
-    """
-
-    save_memory(
-        f"""
-        User: {question}
-
-        Assistant: {full_answer}
-        """
-    )
+        save_memory(question)
 
     yield "\n[SOURCES]\n"
 

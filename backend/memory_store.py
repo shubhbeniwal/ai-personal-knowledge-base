@@ -45,7 +45,8 @@ def retrieve_memory(query):
             query_embedding
         ],
 
-        n_results=3
+        n_results=3,
+        include=["documents", "distances"]
 
     )
 
@@ -58,6 +59,56 @@ def retrieve_memory(query):
     if not results["documents"][0]:
         return ""
 
-    return "\n".join(
-        results["documents"][0]
+    memory_docs = []
+
+    for doc, distance in zip(
+        results["documents"][0],
+        results["distances"][0]
+    ):
+
+        if distance < 1.2:
+            memory_docs.append(doc)
+
+    if not memory_docs:
+        return ""
+
+    return "\n".join(memory_docs)
+
+def should_store_memory(
+    user_message
+):
+
+    keywords = [
+
+        "remember",
+
+        "my favorite",
+
+        "my favourite",
+
+        "i like",
+
+        "i love",
+
+        "i prefer",
+
+        "my name is",
+
+        "i live",
+
+        "i work",
+
+        "my goal",
+
+        "my hobby",
+
+        "my birthday"
+
+    ]
+
+    text = user_message.lower()
+
+    return any(
+        keyword in text
+        for keyword in keywords
     )
