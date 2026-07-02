@@ -4,6 +4,8 @@ from chromadb import PersistentClient
 
 from sentence_transformers import SentenceTransformer
 
+from hybrid_search import keyword_search
+
 
 client = PersistentClient(
     path="./chroma_db"
@@ -52,6 +54,11 @@ def search_chunks(
     query,
     selected_documents=None
 ):
+    
+    keyword_results = keyword_search(
+        query,
+        selected_documents
+    )
 
     query_embedding = model.encode(
         query
@@ -82,7 +89,20 @@ def search_chunks(
 
     print(results)
 
-    documents = results["documents"][0]
+    semantic_docs = results["documents"][0]
+
+    keyword_docs = [
+        item[0]
+        for item in keyword_results
+    ]
+
+    documents = list(
+        dict.fromkeys(
+            semantic_docs + keyword_docs
+        )
+    )
+    
+    documents = documents[:5]
 
     sources = [
         item["source"]
