@@ -28,7 +28,7 @@ export default function Home() {
       behavior: "smooth"
     });
 
-  }, [chatHistory]);
+  }, [chatHistory, streamingAnswer]);
 
   const fetchDocuments = async () => {
 
@@ -414,21 +414,34 @@ Chunks Stored: ${response.data.chunks_stored}`
 
                     <div>
 
-                      <p className="font-semibold">
-                        Sources
-                      </p>
+                      {chat.sources?.length > 0 && (
 
-                      <ul className="list-disc ml-5">
+                        <div className="mt-3">
 
-                        {(chat.sources || []).map(
-                          (source, i) => (
-                            <li key={i}>
-                              {source}
-                            </li>
-                          )
-                        )}
+                          <p className="font-semibold mb-2">
+                            Sources
+                          </p>
 
-                      </ul>
+                          <ul className="space-y-1">
+
+                            {chat.sources.map(
+                              (source, i) => (
+
+                                <li
+                                  key={i}
+                                  className="text-sm text-gray-700"
+                                >
+                                  📄 {source}
+                                </li>
+
+                              )
+                            )}
+
+                          </ul>
+
+                        </div>
+
+                      )}
 
                     </div>
 
