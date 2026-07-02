@@ -8,6 +8,11 @@ from vectorstore import search_chunks
 
 from memory import (get_summary, update_summary)
 
+from memory_store import (
+    save_memory,
+    retrieve_memory
+)
+
 
 load_dotenv()
 
@@ -23,6 +28,10 @@ def ask_rag(question, selected_documents=None, chat_history=None):
     context, sources = search_chunks(
         question,
         selected_documents
+    )
+    
+    memory_context = retrieve_memory(
+        question
     )
     
     conversation_context = ""
@@ -47,25 +56,31 @@ def ask_rag(question, selected_documents=None, chat_history=None):
 
     Rules:
 
-    1. Answer ONLY using information found in the Knowledge Base Context.
+    1. Use BOTH:
 
-    2. If the answer is not present in the context, say:
+    - Relevant Past Memory
+    - Knowledge Base Context
 
-    "I could not find that information in the uploaded documents."
+    when answering.
 
-    3. Do not make assumptions.
+    2. Prefer Knowledge Base Context for factual document questions.
 
-    4. Do not invent facts.
+    3. Use Relevant Past Memory for conversational facts and previous user information.
 
-    5. Keep answers concise and factual.
+    4. If the answer is found in neither Memory nor Knowledge Base Context, say:
 
-    6. Use bullet points when appropriate.
+    "I could not find that information in the uploaded documents or conversation history."
+
+    5. Do not invent facts.
 
     Conversation Summary:
     {existing_summary}
     
     Conversation History:
     {conversation_context}
+
+    Relevant Past Memory:
+    {memory_context}
 
     Knowledge Base Context:
     {context}
@@ -102,6 +117,10 @@ def ask_rag_stream(
         selected_documents
     )
     
+    memory_context = retrieve_memory(
+        question
+    )
+    
     conversation_context = ""
 
     existing_summary = get_summary()
@@ -122,21 +141,22 @@ def ask_rag_stream(
     prompt = f"""
     You are an enterprise knowledge-base assistant.
 
-    Rules:
+    1. Use BOTH:
 
-    1. Answer ONLY using information found in the Knowledge Base Context.
+    - Relevant Past Memory
+    - Knowledge Base Context
 
-    2. If the answer is not present in the context, say:
+    when answering.
 
-    "I could not find that information in the uploaded documents."
+    2. Prefer Knowledge Base Context for factual document questions.
 
-    3. Do not make assumptions.
+    3. Use Relevant Past Memory for conversational facts and previous user information.
 
-    4. Do not invent facts.
+    4. If the answer is found in neither Memory nor Knowledge Base Context, say:
 
-    5. Keep answers concise and factual.
+    "I could not find that information in the uploaded documents or conversation history."
 
-    6. Use bullet points when appropriate.
+    5. Do not invent facts.
 
     
     Conversation Summary:
@@ -144,6 +164,9 @@ def ask_rag_stream(
     
     Conversation History:
     {conversation_context}
+
+    Relevant Past Memory:
+    {memory_context}
 
     Knowledge Base Context:
     {context}
@@ -183,10 +206,12 @@ def ask_rag_stream(
     Assistant: {full_answer}
     """
 
-    update_summary(
-        get_summary()
-        + "\n"
-        + new_summary
+    save_memory(
+        f"""
+        User: {question}
+
+        Assistant: {full_answer}
+        """
     )
 
     yield "\n[SOURCES]\n"
