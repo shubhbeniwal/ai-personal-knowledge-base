@@ -179,6 +179,7 @@ Chunks Stored: ${response.data.chunks_stored}`
         new TextDecoder();
 
       let fullAnswer = "";
+      let sources = [];
 
       while (true) {
 
@@ -194,9 +195,27 @@ Chunks Stored: ${response.data.chunks_stored}`
 
         fullAnswer += chunk;
 
+        const visibleText =
+          fullAnswer.split("[SOURCES]")[0];
+
         setStreamingAnswer(
-          fullAnswer
+          visibleText
         );
+
+      }
+
+      const parts =
+        fullAnswer.split("[SOURCES]");
+
+      const answerText =
+        parts[0].trim();
+
+      if (parts.length > 1) {
+
+        sources = parts[1]
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
 
       }
 
@@ -206,8 +225,8 @@ Chunks Stored: ${response.data.chunks_stored}`
 
         {
           question: userQuestion,
-          answer: fullAnswer,
-          sources: []
+          answer: answerText,
+          sources: sources
         }
 
       ]);
