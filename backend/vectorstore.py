@@ -70,7 +70,7 @@ def search_chunks(
             query_embeddings=[
                 query_embedding
             ],
-            n_results=5,
+            n_results=10,
             where={
                 "source": {
                     "$in": selected_documents
@@ -84,10 +84,21 @@ def search_chunks(
             query_embeddings=[
                 query_embedding
             ],
-            n_results=5
+            n_results=10
         )
 
-    print(results)
+    print("\n--- Retrieval Results ---")
+
+    for doc, distance in zip(
+        results["documents"][0],
+        results["distances"][0]
+    ):
+        print(
+            f"\nDistance: {distance}"
+        )
+        print(
+            doc[:150]
+        )
 
     semantic_docs = results["documents"][0]
 
