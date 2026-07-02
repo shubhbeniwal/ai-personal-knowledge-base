@@ -18,6 +18,7 @@ from fastapi.responses import StreamingResponse
 class QuestionRequest(BaseModel):
     question: str
     selected_documents: list[str] = []
+    chat_history: list = []
 
 app = FastAPI(
     title="AI Personal Knowledge Base",
@@ -99,7 +100,8 @@ def ask_question(
 
     result = ask_rag(
         request.question,
-        request.selected_documents
+        request.selected_documents,
+        request.chat_history
     )
 
     return {
@@ -117,7 +119,8 @@ def ask_stream(
 
         ask_rag_stream(
             request.question,
-            request.selected_documents
+            request.selected_documents,
+            request.chat_history
         ),
 
         media_type="text/plain"

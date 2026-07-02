@@ -166,7 +166,8 @@ Chunks Stored: ${response.data.chunks_stored}`
 
           body: JSON.stringify({
             question: userQuestion,
-            selected_documents: selectedDocuments
+            selected_documents: selectedDocuments,
+            chat_history: chatHistory
           })
         }
       );

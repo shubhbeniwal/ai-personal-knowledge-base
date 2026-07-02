@@ -16,24 +16,40 @@ client = Groq(
 )
 
 
-def ask_rag(question, selected_documents=None):
+def ask_rag(question, selected_documents=None, chat_history=None):
 
     context, sources = search_chunks(
         question,
         selected_documents
     )
+    
+    conversation_context = ""
+
+    if chat_history:
+
+        recent_messages = chat_history[-5:]
+
+        for chat in recent_messages:
+
+            conversation_context += (
+                f"User: {chat['question']}\n"
+                f"Assistant: {chat['answer']}\n\n"
+            )
 
     prompt = f"""
-You are a helpful assistant.
+    You are a helpful assistant.
 
-Answer ONLY from the context below.
+    Use the conversation history when relevant.
 
-Context:
-{context}
+    Conversation History:
+    {conversation_context}
 
-Question:
-{question}
-"""
+    Knowledge Base Context:
+    {context}
+
+    Current Question:
+    {question}
+    """
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -54,25 +70,42 @@ Question:
     
 def ask_rag_stream(
     question,
-    selected_documents=None
+    selected_documents=None,
+    chat_history=None
 ):
 
     context, sources = search_chunks(
         question,
         selected_documents
     )
+    
+    conversation_context = ""
+
+    if chat_history:
+
+        recent_messages = chat_history[-5:]
+
+        for chat in recent_messages:
+
+            conversation_context += (
+                f"User: {chat['question']}\n"
+                f"Assistant: {chat['answer']}\n\n"
+            )
 
     prompt = f"""
-You are a helpful assistant.
+    You are a helpful assistant.
 
-Answer ONLY from the context below.
+    Use the conversation history when relevant.
 
-Context:
-{context}
+    Conversation History:
+    {conversation_context}
 
-Question:
-{question}
-"""
+    Knowledge Base Context:
+    {context}
+
+    Current Question:
+    {question}
+    """
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
