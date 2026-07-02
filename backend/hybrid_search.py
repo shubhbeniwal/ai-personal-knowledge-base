@@ -28,6 +28,9 @@ def keyword_search(query, selected_documents=None):
         data = collection.get()
 
     documents = data["documents"]
+    
+    if not documents:
+        return []
 
     tokenized_docs = [
         doc.lower().split()

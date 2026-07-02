@@ -6,6 +6,8 @@ from groq import Groq
 
 from vectorstore import search_chunks
 
+from memory import (get_summary, update_summary)
+
 
 load_dotenv()
 
@@ -25,6 +27,8 @@ def ask_rag(question, selected_documents=None, chat_history=None):
     
     conversation_context = ""
 
+    existing_summary = get_summary()
+
     if chat_history:
 
         recent_messages = chat_history[-5:]
@@ -35,6 +39,8 @@ def ask_rag(question, selected_documents=None, chat_history=None):
                 f"User: {chat['question']}\n"
                 f"Assistant: {chat['answer']}\n\n"
             )
+        
+        existing_summary = get_summary()
 
     prompt = f"""
     You are an enterprise knowledge-base assistant.
@@ -55,6 +61,9 @@ def ask_rag(question, selected_documents=None, chat_history=None):
 
     6. Use bullet points when appropriate.
 
+    Conversation Summary:
+    {existing_summary}
+    
     Conversation History:
     {conversation_context}
 
@@ -95,6 +104,8 @@ def ask_rag_stream(
     
     conversation_context = ""
 
+    existing_summary = get_summary()
+
     if chat_history:
 
         recent_messages = chat_history[-5:]
@@ -105,6 +116,8 @@ def ask_rag_stream(
                 f"User: {chat['question']}\n"
                 f"Assistant: {chat['answer']}\n\n"
             )
+        
+        existing_summary = get_summary()
 
     prompt = f"""
     You are an enterprise knowledge-base assistant.
@@ -125,6 +138,10 @@ def ask_rag_stream(
 
     6. Use bullet points when appropriate.
 
+    
+    Conversation Summary:
+    {existing_summary}
+    
     Conversation History:
     {conversation_context}
 
@@ -146,6 +163,8 @@ def ask_rag_stream(
         stream=True
     )
 
+    full_answer = ""
+    
     for chunk in response:
 
         if (
@@ -154,8 +173,21 @@ def ask_rag_stream(
         ):
 
             text = chunk.choices[0].delta.content
+            full_answer += text
 
             yield text
+    
+    new_summary = f"""
+    User: {question}
+
+    Assistant: {full_answer}
+    """
+
+    update_summary(
+        get_summary()
+        + "\n"
+        + new_summary
+    )
 
     yield "\n[SOURCES]\n"
 

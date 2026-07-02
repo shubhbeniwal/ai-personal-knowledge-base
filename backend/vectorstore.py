@@ -100,7 +100,27 @@ def search_chunks(
             doc[:150]
         )
 
-    semantic_docs = results["documents"][0]
+    semantic_docs = []
+
+    sources = []
+
+    for doc, metadata, distance in zip(
+
+        results["documents"][0],
+
+        results["metadatas"][0],
+
+        results["distances"][0]
+
+    ):
+
+        if distance < 1.8:
+
+            semantic_docs.append(doc)
+
+            sources.append(
+                metadata["source"]
+            )
 
     keyword_docs = [
         item[0]
@@ -114,11 +134,6 @@ def search_chunks(
     )
     
     documents = documents[:5]
-
-    sources = [
-        item["source"]
-        for item in results["metadatas"][0]
-    ]
 
     context = "\n".join(
         documents
