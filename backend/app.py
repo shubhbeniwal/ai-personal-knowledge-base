@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 
 from fastapi import UploadFile, File
+
 import os
 
 from document_loader import load_pdf
-
-from ingest import ingest_document
 
 from pydantic import BaseModel
 
@@ -14,6 +13,12 @@ from rag_engine import (ask_rag, ask_rag_stream)
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.responses import StreamingResponse
+
+from ingest import ingest_document
+
+from vectorstore import collection
+
+
 
 class QuestionRequest(BaseModel):
     question: str
@@ -24,6 +29,49 @@ app = FastAPI(
     title="AI Personal Knowledge Base",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+def rebuild_index():
+
+    count = collection.count()
+
+    if count > 0:
+
+        print(
+            f"Chroma already contains {count} chunks"
+        )
+
+        return
+
+    print(
+        "\nRebuilding Chroma Index...\n"
+    )
+
+    uploads_folder = "uploads"
+
+    if not os.path.exists(
+        uploads_folder
+    ):
+        return
+
+    for file in os.listdir(
+        uploads_folder
+    ):
+
+        if file.endswith(".pdf"):
+
+            file_path = os.path.join(
+                uploads_folder,
+                file
+            )
+
+            ingest_document(
+                file_path
+            )
+
+            print(
+                f"Indexed {file}"
+            )
 
 app.add_middleware(
     CORSMiddleware,
@@ -150,7 +198,9 @@ def get_documents():
     }
     
 @app.delete("/documents/{filename}")
-def delete_document(filename: str):
+def delete_document(
+    filename: str
+):
 
     import os
 
@@ -165,6 +215,12 @@ def delete_document(filename: str):
 
         os.remove(
             file_path
+        )
+
+        collection.delete(
+            where={
+                "source": filename
+            }
         )
 
         return {

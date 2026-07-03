@@ -74,41 +74,64 @@ def retrieve_memory(query):
 
     return "\n".join(memory_docs)
 
-def should_store_memory(
-    user_message
-):
+def should_store_memory(user_message):
 
-    keywords = [
+    text = user_message.lower().strip()
 
-        "remember",
+    # Never save questions
+    if text.endswith("?"):
+        return False
 
-        "my favorite",
-
-        "my favourite",
-
-        "i like",
-
-        "i love",
-
-        "i prefer",
-
-        "my name is",
-
-        "i live",
-
+    memory_patterns = [
         "i work",
-
+        "i live",
         "my goal",
-
+        "my birthday",
+        "my favourite"
+        "remember",
+        "my name is",
+        "i am",
+        "i work at",
+        "i live in",
+        "i prefer",
+        "i like",
+        "i love",
+        "my favorite",
+        "my favourite",
         "my hobby",
-
-        "my birthday"
-
+        "my hobbies",
+        "my goals",
+        "my birthday",
+        "my pet",
+        "my dog",
+        "my cat",
+        "i study",
+        "i am studying",
+        "i graduated from",
+        "i use",
+        "i enjoy"
     ]
 
-    text = user_message.lower()
-
     return any(
-        keyword in text
-        for keyword in keywords
+        pattern in text
+        for pattern in memory_patterns
     )
+    
+def clean_memory_text(text):
+
+    text = text.strip()
+
+    prefixes = [
+        "remember ",
+        "remember that ",
+    ]
+
+    lower_text = text.lower()
+
+    for prefix in prefixes:
+
+        if lower_text.startswith(prefix):
+
+            return text[len(prefix):]
+
+    return text

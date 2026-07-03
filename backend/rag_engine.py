@@ -9,11 +9,13 @@ from vectorstore import search_chunks
 from memory import (get_summary, update_summary)
 
 from memory_store import (
+    clean_memory_text,
     save_memory,
     retrieve_memory,
     should_store_memory
 )
 
+from query_rewriter import rewrite_query
 
 load_dotenv()
 
@@ -26,13 +28,27 @@ client = Groq(
 
 def ask_rag(question, selected_documents=None, chat_history=None):
 
-    context, sources = search_chunks(
+    if should_store_memory(question):
+
+        save_memory(clean_memory_text(question))
+
+        return {
+            "answer": "Got it. I'll remember that.",
+            "sources": []
+        }
+
+    rewritten_question = rewrite_query(
         question,
+        chat_history
+    )
+
+    context, sources = search_chunks(
+        rewritten_question,
         selected_documents
     )
     
     memory_context = retrieve_memory(
-        question
+        rewritten_question
     )
     
     conversation_context = ""
@@ -53,34 +69,122 @@ def ask_rag(question, selected_documents=None, chat_history=None):
         existing_summary = get_summary()
 
     prompt = f"""
-    You are an enterprise knowledge-base assistant.
+    You are a Personal Knowledge Base Assistant.
+
+    Available Information Sources:
+
+    1. Uploaded Documents
+    2. Relevant User Memory
+    3. Conversation History
+    4. General Knowledge
+
+    Source Priority:
+
+    Uploaded Documents > User Memory > Conversation History > General Knowledge
 
     Rules:
 
-    1. Use BOTH:
+    - Use Uploaded Documents whenever the answer exists there.
+    - Use User Memory only for personal facts previously shared by the user.
+    - Use Conversation History to resolve references and maintain context.
+    - Use General Knowledge for public concepts, technologies, frameworks, companies, products, programming languages, databases, scientific concepts, and other non-personal information.
 
-    - Relevant Past Memory
-    - Knowledge Base Context
+    Important:
 
-    when answering.
+    User Memory contains personal facts.
 
-    2. Prefer Knowledge Base Context for factual document questions.
+    Examples:
 
-    3. Use Relevant Past Memory for conversational facts and previous user information.
+    Memory:
+    "My favorite color is blue."
 
-    4. If the answer is found in neither Memory nor Knowledge Base Context, say:
+    Question:
+    "What is my favorite color?"
 
-    "I could not find that information in the uploaded documents or conversation history."
+    Use Memory.
 
-    5. Do not invent facts.
+    ---
+
+    Memory:
+    "My favorite framework is LangChain."
+
+    Question:
+    "Tell me about LangChain."
+
+    Use General Knowledge.
+
+    Do NOT answer:
+
+    "Your favorite framework is LangChain."
+
+    ---
+
+    Question:
+    "What did I do at my company?"
+
+    Use Documents + Memory.
+
+    ---
+
+    Question:
+    "What is PostgreSQL?"
+
+    Use General Knowledge.
+
+    ---
+
+    Question:
+    "What technologies did I use at LTIMindtree?"
+
+    Use Documents + Memory.
+
+    Never confuse:
+
+    - Personal preferences
+    - Public knowledge
+
+    Never invent information.
+
+    If information cannot be found in any source, say:
+
+    "I could not find that information in the uploaded documents, memory, conversation history, or general knowledge."
+    
+    Memory Usage Rules:
+
+    Use memory only when the user asks about:
+
+    - themselves
+    - their preferences
+    - their history
+    - their goals
+    - their previously shared information
+
+    Do not use memory to answer general knowledge questions.
+
+    Example:
+
+    Memory:
+    "My favorite database is PostgreSQL"
+
+    Question:
+    "What is PostgreSQL?"
+
+    Answer:
+    Explain PostgreSQL using general knowledge.
+
+    Question:
+    "What is my favorite database?"
+
+    Answer:
+    Use memory.
 
     Conversation Summary:
     {existing_summary}
-    
+
     Conversation History:
     {conversation_context}
 
-    Relevant Past Memory:
+    Relevant User Memory:
     {memory_context}
 
     Knowledge Base Context:
@@ -113,13 +217,30 @@ def ask_rag_stream(
     chat_history=None
 ):
 
-    context, sources = search_chunks(
+    if should_store_memory(question):
+
+        save_memory(clean_memory_text(question))
+
+        yield "Got it. I'll remember that."
+
+        return
+
+    rewritten_question = rewrite_query(
         question,
+        chat_history
+    )
+
+    print("\n--- QUERY REWRITE ---")
+    print("Original:", question)
+    print("Rewritten:", rewritten_question)
+    
+    context, sources = search_chunks(
+        rewritten_question,
         selected_documents
     )
     
     memory_context = retrieve_memory(
-        question
+        rewritten_question
     )
     
     conversation_context = ""
@@ -140,33 +261,122 @@ def ask_rag_stream(
         existing_summary = get_summary()
 
     prompt = f"""
-    You are an enterprise knowledge-base assistant.
+    You are a Personal Knowledge Base Assistant.
 
-    1. Use BOTH:
+    Available Information Sources:
 
-    - Relevant Past Memory
-    - Knowledge Base Context
+    1. Uploaded Documents
+    2. Relevant User Memory
+    3. Conversation History
+    4. General Knowledge
 
-    when answering.
+    Source Priority:
 
-    2. Prefer Knowledge Base Context for factual document questions.
+    Uploaded Documents > User Memory > Conversation History > General Knowledge
 
-    3. Use Relevant Past Memory for conversational facts and previous user information.
+    Rules:
 
-    4. If the answer is found in neither Memory nor Knowledge Base Context, say:
+    - Use Uploaded Documents whenever the answer exists there.
+    - Use User Memory only for personal facts previously shared by the user.
+    - Use Conversation History to resolve references and maintain context.
+    - Use General Knowledge for public concepts, technologies, frameworks, companies, products, programming languages, databases, scientific concepts, and other non-personal information.
 
-    "I could not find that information in the uploaded documents or conversation history."
+    Important:
 
-    5. Do not invent facts.
+    User Memory contains personal facts.
 
+    Examples:
+
+    Memory:
+    "My favorite color is blue."
+
+    Question:
+    "What is my favorite color?"
+
+    Use Memory.
+
+    ---
+
+    Memory:
+    "My favorite framework is LangChain."
+
+    Question:
+    "Tell me about LangChain."
+
+    Use General Knowledge.
+
+    Do NOT answer:
+
+    "Your favorite framework is LangChain."
+
+    ---
+
+    Question:
+    "What did I do at my company?"
+
+    Use Documents + Memory.
+
+    ---
+
+    Question:
+    "What is PostgreSQL?"
+
+    Use General Knowledge.
+
+    ---
+
+    Question:
+    "What technologies did I use at LTIMindtree?"
+
+    Use Documents + Memory.
+
+    Never confuse:
+
+    - Personal preferences
+    - Public knowledge
+
+    Never invent information.
+
+    If information cannot be found in any source, say:
+
+    "I could not find that information in the uploaded documents, memory, conversation history, or general knowledge."
     
+    Memory Usage Rules:
+
+    Use memory only when the user asks about:
+
+    - themselves
+    - their preferences
+    - their history
+    - their goals
+    - their previously shared information
+
+    Do not use memory to answer general knowledge questions.
+
+    Example:
+
+    Memory:
+    "My favorite database is PostgreSQL"
+
+    Question:
+    "What is PostgreSQL?"
+
+    Answer:
+    Explain PostgreSQL using general knowledge.
+
+    Question:
+    "What is my favorite database?"
+
+    Answer:
+    Use memory.
+
     Conversation Summary:
     {existing_summary}
-    
+
     Conversation History:
     {conversation_context}
 
-    Relevant Past Memory:
+    Relevant User Memory:
     {memory_context}
 
     Knowledge Base Context:
@@ -200,13 +410,3 @@ def ask_rag_stream(
             full_answer += text
 
             yield text
-    
-    if should_store_memory(question):
-
-        save_memory(question)
-
-    yield "\n[SOURCES]\n"
-
-    for source in sources:
-
-        yield source + "\n"

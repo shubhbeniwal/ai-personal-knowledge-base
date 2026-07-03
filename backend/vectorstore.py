@@ -49,11 +49,15 @@ def store_chunks(
         metadatas=metadatas
     )
 
-
 def search_chunks(
     query,
     selected_documents=None
 ):
+    
+    print(
+        "COLLECTION COUNT:",
+        collection.count()
+    )
     
     keyword_results = keyword_search(
         query,
