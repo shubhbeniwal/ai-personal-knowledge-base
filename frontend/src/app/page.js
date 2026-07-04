@@ -252,177 +252,249 @@ Chunks Stored: ${response.data.chunks_stored}`
     <>
       <div className="background-orb orb-1"></div>
       <div className="background-orb orb-2"></div>
-        
+
       <main className="min-h-screen p-8">
 
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
+
+          {/* HEADER */}
 
           <div className="mb-10">
 
-            <h1 className="text-7xl font-extrabold gradient-text mb-3">
-              MemoryOS
-            </h1>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-            <p className="text-gray-400 text-xl mb-6">
-              Your second brain powered by AI.
-            </p>
+              <div>
 
-            <div className="memory-status">
+                <h1 className="text-7xl font-black gradient-text mb-3 leading-[1.15] pb-2">
+                  MemoryOS
+                </h1>
+
+                <p className="text-xl text-gray-400 max-w-3xl">
+                  Your personal AI memory system.
+                  Upload documents, store knowledge and retrieve information instantly.
+                </p>
+
+              </div>
+
+              <div className="glass rounded-3xl p-6 min-w-[260px]">
+
+                <div className="text-sm text-gray-400 mb-3">
+                  SYSTEM STATUS
+                </div>
+
+                <div className="space-y-2">
+
+                  <div className="text-green-400 font-medium">
+                    ● Memory Engine Active
+                  </div>
+
+                  <div className="text-blue-400 font-medium">
+                    ● Vector Search Online
+                  </div>
+
+                  <div className="text-purple-400 font-medium">
+                    ● AI Ready
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* STATUS PILLS */}
+
+            <div className="memory-status mt-6">
 
               <div className="status-pill">
-                🧠 Memory Engine Online
+                🧠 {documents.length} Memories
               </div>
 
               <div className="status-pill">
-                📚 {documents.length} Memories Loaded
+                ⚡ AI Online
               </div>
 
               <div className="status-pill">
-                ⚡ AI Ready
+                🔍 Semantic Search
+              </div>
+
+              <div className="status-pill">
+                📚 Knowledge Retrieval
               </div>
 
             </div>
 
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* MAIN GRID */}
 
-            <div className="
-            glass
-            p-8
-            rounded-3xl
-            border
-            border-white/10
-            shadow-2xl
-            ">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-              <h2 className="text-2xl font-bold mb-4 text-white">
+            {/* LEFT PANEL */}
+
+            <div className="glass rounded-3xl p-8">
+
+              <h2 className="text-3xl font-bold mb-2">
                 Memory Vault
               </h2>
 
-              <input
-                type="file"
-                onChange={(e) => {
-                  console.log(e.target.files[0]);
-                  setFile(e.target.files[0]);
-                }}
-                className="mb-4"
-              />
-
-              <button
-                onClick={uploadFile}
-                className="
-                px-5
-                py-3
-                rounded-xl
-                bg-gradient-to-r
-                from-blue-500
-                to-purple-600
-                text-white
-                font-semibold
-                hover:scale-105
-                transition
-                "
-              >
-                Add Memory
-              </button>
-
-              <p className="mt-4 text-green-600 whitespace-pre-line">
-                {uploadStatus}
+              <p className="text-gray-400 mb-6">
+                Connect documents to your AI memory.
               </p>
 
-              <div className="mt-6">
+              {/* Upload Section */}
 
-                <h3 className="font-bold mb-3 text-blue-300">
-                  Your Memories
+              <div className="mb-6">
+
+                <input
+                  type="file"
+                  onChange={(e) => {
+                    setFile(e.target.files[0]);
+                  }}
+                  className="mb-4 w-full"
+                />
+
+                <button
+                  onClick={uploadFile}
+                  className="
+                  w-full
+                  py-3
+                  rounded-xl
+                  bg-gradient-to-r
+                  from-blue-500
+                  to-purple-600
+                  text-white
+                  font-semibold
+                  hover:scale-[1.02]
+                  transition
+                  "
+                >
+                  Add Memory
+                </button>
+
+                {uploadStatus && (
+
+                  <div className="mt-4 text-green-400 text-sm whitespace-pre-line">
+                    {uploadStatus}
+                  </div>
+
+                )}
+
+              </div>
+
+              {/* Documents */}
+
+              <div>
+
+                <h3 className="font-semibold text-blue-300 mb-4">
+                  Connected Documents
                 </h3>
 
-                <ul className="list-disc ml-5">
+                <div className="space-y-3">
 
-                  {documents.map(
-                    (doc, index) => (
+                  {documents.map((doc, index) => (
 
-                      <li
-                        key={index}
-                        className="flex justify-between items-center mb-2"
-                      >
+                    <div
+                      key={index}
+                      className="
+                      glass
+                      rounded-xl
+                      p-3
+                      flex
+                      justify-between
+                      items-center
+                      "
+                    >
 
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
 
-                          <input
-                            type="checkbox"
-                            checked={
-                              selectedDocuments.includes(doc)
-                            }
-                            onChange={() =>
-                              toggleDocumentSelection(doc)
-                            }
-                          />
-
-                          <span>
-                            {doc}
-                          </span>
-
-                        </div>
-
-                        <button
-                          onClick={() =>
-                            deleteDocument(doc)
+                        <input
+                          type="checkbox"
+                          checked={selectedDocuments.includes(doc)}
+                          onChange={() =>
+                            toggleDocumentSelection(doc)
                           }
-                          className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-                        >
-                          Delete
-                        </button>
+                        />
 
-                      </li>
+                        <span className="text-sm">
+                          {doc}
+                        </span>
 
-                    )
-                  )}
+                      </div>
 
-                </ul>
+                      <button
+                        onClick={() =>
+                          deleteDocument(doc)
+                        }
+                        className="
+                        text-red-400
+                        hover:text-red-300
+                        text-sm
+                        "
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  ))}
+
+                </div>
 
               </div>
 
             </div>
 
-            <div className="
-            md:col-span-2
-            glass
-            p-8
-            rounded-3xl
-            shadow-2xl
-            border
-            border-white/10
-            ">
+            {/* RIGHT PANEL */}
 
-              <h2 className="text-2xl font-bold mb-4 text-white">
-                Talk To Your AI Memory
-              </h2>
+            <div className="lg:col-span-2 glass rounded-3xl p-8">
+
+              <div className="flex justify-between items-center mb-6">
+
+                <div>
+
+                  <h2 className="text-3xl font-bold">
+                    AI Workspace
+                  </h2>
+
+                  <p className="text-gray-400">
+                    Ask questions across your memory system.
+                  </p>
+
+                </div>
+
+                <div className="status-pill">
+                  ⚡ Context Aware
+                </div>
+
+              </div>
+
+              {/* Input */}
 
               <textarea
                 value={question}
                 onChange={(e) =>
                   setQuestion(e.target.value)
                 }
+                rows="4"
+                placeholder="Ask a question..."
                 className="
                 w-full
                 glass
-                p-4
                 rounded-2xl
-                mb-4
+                p-4
                 text-white
-                placeholder-gray-400
+                placeholder-gray-500
                 outline-none
+                mb-4
                 "
-                rows="4"
-                placeholder="Ask a question..."
               />
 
               <button
                 onClick={askQuestion}
                 disabled={loading}
                 className="
-                px-5
+                px-6
                 py-3
                 rounded-xl
                 bg-gradient-to-r
@@ -430,28 +502,37 @@ Chunks Stored: ${response.data.chunks_stored}`
                 to-pink-600
                 text-white
                 font-semibold
-                hover:scale-105
+                hover:scale-[1.02]
                 transition
                 "
               >
                 {loading ? "Generating..." : "Recall"}
               </button>
 
-              <div className="mt-8 space-y-6">
+              {/* CHAT */}
+
+              <div className="mt-8 space-y-5">
+
+                {loading && (
+
+                  <div className="glass rounded-2xl p-5">
+
+                    <div className="typing-dots">
+                      🧠 Thinking
+                      <span>.</span>
+                      <span>.</span>
+                      <span>.</span>
+                    </div>
+
+                  </div>
+
+                )}
 
                 {streamingAnswer && (
 
-                  <div
-                    className="
-                      glass
-                      rounded-2xl
-                      p-5
-                      border
-                      border-white/10
-                    "
-                  >
+                  <div className="glass rounded-2xl p-5">
 
-                    <p className="font-bold text-green-700">
+                    <p className="font-bold text-purple-400 mb-2">
                       ⚡ MemoryOS
                     </p>
 
@@ -463,50 +544,17 @@ Chunks Stored: ${response.data.chunks_stored}`
 
                 )}
 
-                {loading && (
-
-                  <div className="
-                  glass
-                  rounded-2xl
-                  p-5
-                  border
-                  border-white/10
-                  ">
-
-                    <p className="font-bold text-green-700">
-                      AI
-                    </p>
-
-                    <p>
-                      <div className="typing-dots">
-                        🧠 Thinking
-                        <span>.</span>
-                        <span>.</span>
-                        <span>.</span>
-                      </div>
-                    </p>
-
-                  </div>
-
-                )}
-
                 {chatHistory.map((chat, index) => (
 
                   <div
                     key={index}
-                    className="
-                    glass
-                    rounded-2xl
-                    p-5
-                    border
-                    border-white/10
-                    "
+                    className="glass rounded-2xl p-5"
                   >
 
-                    <div className="mb-3">
+                    <div className="mb-4">
 
-                      <p className="font-bold text-blue-700">
-                        🧍 User
+                      <p className="font-bold text-blue-400 mb-1">
+                        👤 User
                       </p>
 
                       <p>
@@ -517,48 +565,38 @@ Chunks Stored: ${response.data.chunks_stored}`
 
                     <div>
 
-                      <p className="font-bold text-green-700">
+                      <p className="font-bold text-purple-400 mb-1">
                         ⚡ MemoryOS
                       </p>
 
-                      <p className="mb-3">
+                      <p>
                         {chat.answer}
                       </p>
 
-                      <div>
+                    </div>
 
-                        {chat.sources?.length > 0 && (
+                    {chat.sources?.length > 0 && (
 
-                          <div className="mt-3">
+                      <div className="mt-4">
 
-                            <p className="font-semibold mb-2">
-                              Sources
-                            </p>
+                        <p className="font-semibold mb-2">
+                          Sources
+                        </p>
 
-                            <ul className="space-y-1">
+                        {chat.sources.map((source, i) => (
 
-                              {chat.sources.map(
-                                (source, i) => (
-
-                                  <li
-                                    key={i}
-                                    className="text-sm text-gray-700"
-                                  >
-                                    📄 {source}
-                                  </li>
-
-                                )
-                              )}
-
-                            </ul>
-
+                          <div
+                            key={i}
+                            className="text-sm text-gray-400"
+                          >
+                            📄 {source}
                           </div>
 
-                        )}
+                        ))}
 
                       </div>
 
-                    </div>
+                    )}
 
                   </div>
 
@@ -574,7 +612,7 @@ Chunks Stored: ${response.data.chunks_stored}`
 
         </div>
 
-    </main>
+      </main>
     </>
-    );
+  );
 }
