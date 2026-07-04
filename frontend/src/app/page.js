@@ -16,6 +16,8 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
 
+  const [aiStatus, setAiStatus] = useState("Ready");
+
   const chatEndRef = useRef(null);
 
   const [documents, setDocuments] = useState([]);
@@ -247,230 +249,324 @@ Chunks Stored: ${response.data.chunks_stored}`
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 p-8">
+    <>
+      <div className="background-orb orb-1"></div>
+      <div className="background-orb orb-2"></div>
+        
+      <main className="min-h-screen p-8">
 
-      <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
 
-        <h1 className="text-4xl font-bold mb-8">
-          AI Personal Knowledge Base
-        </h1>
+          <div className="mb-10">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <h1 className="text-7xl font-extrabold gradient-text mb-3">
+              MemoryOS
+            </h1>
 
-          <div className="bg-white p-6 rounded-xl shadow">
-
-            <h2 className="text-xl font-semibold mb-4">
-              Upload Document
-            </h2>
-
-            <input
-              type="file"
-              onChange={(e) => {
-                console.log(e.target.files[0]);
-                setFile(e.target.files[0]);
-              }}
-              className="mb-4"
-            />
-
-            <button
-              onClick={uploadFile}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Upload
-            </button>
-
-            <p className="mt-4 text-green-600 whitespace-pre-line">
-              {uploadStatus}
+            <p className="text-gray-400 text-xl mb-6">
+              Your second brain powered by AI.
             </p>
 
-            <div className="mt-6">
+            <div className="memory-status">
 
-              <h3 className="font-bold mb-2">
-                Uploaded Documents
-              </h3>
+              <div className="status-pill">
+                🧠 Memory Engine Online
+              </div>
 
-              <ul className="list-disc ml-5">
+              <div className="status-pill">
+                📚 {documents.length} Memories Loaded
+              </div>
 
-                {documents.map(
-                  (doc, index) => (
-
-                    <li
-                      key={index}
-                      className="flex justify-between items-center mb-2"
-                    >
-
-                      <div className="flex items-center gap-2">
-
-                        <input
-                          type="checkbox"
-                          checked={
-                            selectedDocuments.includes(doc)
-                          }
-                          onChange={() =>
-                            toggleDocumentSelection(doc)
-                          }
-                        />
-
-                        <span>
-                          {doc}
-                        </span>
-
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          deleteDocument(doc)
-                        }
-                        className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-                      >
-                        Delete
-                      </button>
-
-                    </li>
-
-                  )
-                )}
-
-              </ul>
+              <div className="status-pill">
+                ⚡ AI Ready
+              </div>
 
             </div>
 
           </div>
 
-          <div className="md:col-span-2 bg-white p-6 rounded-xl shadow">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <h2 className="text-xl font-semibold mb-4">
-              Ask Questions
-            </h2>
+            <div className="
+            glass
+            p-8
+            rounded-3xl
+            border
+            border-white/10
+            shadow-2xl
+            ">
 
-            <textarea
-              value={question}
-              onChange={(e) =>
-                setQuestion(e.target.value)
-              }
-              className="w-full border p-3 rounded mb-4"
-              rows="4"
-              placeholder="Ask a question..."
-            />
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Memory Vault
+              </h2>
 
-            <button
-              onClick={askQuestion}
-              disabled={loading}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              {loading ? "Generating..." : "Ask"}
-            </button>
+              <input
+                type="file"
+                onChange={(e) => {
+                  console.log(e.target.files[0]);
+                  setFile(e.target.files[0]);
+                }}
+                className="mb-4"
+              />
 
-            <div className="mt-8 space-y-6">
+              <button
+                onClick={uploadFile}
+                className="
+                px-5
+                py-3
+                rounded-xl
+                bg-gradient-to-r
+                from-blue-500
+                to-purple-600
+                text-white
+                font-semibold
+                hover:scale-105
+                transition
+                "
+              >
+                Add Memory
+              </button>
 
-              {streamingAnswer && (
+              <p className="mt-4 text-green-600 whitespace-pre-line">
+                {uploadStatus}
+              </p>
 
-                <div
-                  className="
-                    border
-                    rounded-lg
-                    p-4
-                    bg-yellow-50
-                  "
-                >
+              <div className="mt-6">
 
-                  <p className="font-bold text-green-700">
-                    AI
-                  </p>
+                <h3 className="font-bold mb-3 text-blue-300">
+                  Your Memories
+                </h3>
 
-                  <p>
-                    {streamingAnswer}
-                  </p>
+                <ul className="list-disc ml-5">
 
-                </div>
+                  {documents.map(
+                    (doc, index) => (
 
-              )}
+                      <li
+                        key={index}
+                        className="flex justify-between items-center mb-2"
+                      >
 
-              {loading && (
+                        <div className="flex items-center gap-2">
 
-                <div className="border rounded-lg p-4 bg-yellow-50">
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedDocuments.includes(doc)
+                            }
+                            onChange={() =>
+                              toggleDocumentSelection(doc)
+                            }
+                          />
 
-                  <p className="font-bold text-green-700">
-                    AI
-                  </p>
+                          <span>
+                            {doc}
+                          </span>
 
-                  <p>
-                    Typing...
-                  </p>
+                        </div>
 
-                </div>
+                        <button
+                          onClick={() =>
+                            deleteDocument(doc)
+                          }
+                          className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                        >
+                          Delete
+                        </button>
 
-              )}
+                      </li>
 
-              {chatHistory.map((chat, index) => (
+                    )
+                  )}
 
-                <div
-                  key={index}
-                  className="border rounded-lg p-4 bg-gray-50"
-                >
+                </ul>
 
-                  <div className="mb-3">
+              </div>
 
-                    <p className="font-bold text-blue-700">
-                      You
+            </div>
+
+            <div className="
+            md:col-span-2
+            glass
+            p-8
+            rounded-3xl
+            shadow-2xl
+            border
+            border-white/10
+            ">
+
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Talk To Your AI Memory
+              </h2>
+
+              <textarea
+                value={question}
+                onChange={(e) =>
+                  setQuestion(e.target.value)
+                }
+                className="
+                w-full
+                glass
+                p-4
+                rounded-2xl
+                mb-4
+                text-white
+                placeholder-gray-400
+                outline-none
+                "
+                rows="4"
+                placeholder="Ask a question..."
+              />
+
+              <button
+                onClick={askQuestion}
+                disabled={loading}
+                className="
+                px-5
+                py-3
+                rounded-xl
+                bg-gradient-to-r
+                from-purple-600
+                to-pink-600
+                text-white
+                font-semibold
+                hover:scale-105
+                transition
+                "
+              >
+                {loading ? "Generating..." : "Recall"}
+              </button>
+
+              <div className="mt-8 space-y-6">
+
+                {streamingAnswer && (
+
+                  <div
+                    className="
+                      glass
+                      rounded-2xl
+                      p-5
+                      border
+                      border-white/10
+                    "
+                  >
+
+                    <p className="font-bold text-green-700">
+                      ⚡ MemoryOS
                     </p>
 
                     <p>
-                      {chat.question}
+                      {streamingAnswer}
                     </p>
 
                   </div>
 
-                  <div>
+                )}
+
+                {loading && (
+
+                  <div className="
+                  glass
+                  rounded-2xl
+                  p-5
+                  border
+                  border-white/10
+                  ">
 
                     <p className="font-bold text-green-700">
                       AI
                     </p>
 
-                    <p className="mb-3">
-                      {chat.answer}
+                    <p>
+                      <div className="typing-dots">
+                        🧠 Thinking
+                        <span>.</span>
+                        <span>.</span>
+                        <span>.</span>
+                      </div>
                     </p>
+
+                  </div>
+
+                )}
+
+                {chatHistory.map((chat, index) => (
+
+                  <div
+                    key={index}
+                    className="
+                    glass
+                    rounded-2xl
+                    p-5
+                    border
+                    border-white/10
+                    "
+                  >
+
+                    <div className="mb-3">
+
+                      <p className="font-bold text-blue-700">
+                        🧍 User
+                      </p>
+
+                      <p>
+                        {chat.question}
+                      </p>
+
+                    </div>
 
                     <div>
 
-                      {chat.sources?.length > 0 && (
+                      <p className="font-bold text-green-700">
+                        ⚡ MemoryOS
+                      </p>
 
-                        <div className="mt-3">
+                      <p className="mb-3">
+                        {chat.answer}
+                      </p>
 
-                          <p className="font-semibold mb-2">
-                            Sources
-                          </p>
+                      <div>
 
-                          <ul className="space-y-1">
+                        {chat.sources?.length > 0 && (
 
-                            {chat.sources.map(
-                              (source, i) => (
+                          <div className="mt-3">
 
-                                <li
-                                  key={i}
-                                  className="text-sm text-gray-700"
-                                >
-                                  📄 {source}
-                                </li>
+                            <p className="font-semibold mb-2">
+                              Sources
+                            </p>
 
-                              )
-                            )}
+                            <ul className="space-y-1">
 
-                          </ul>
+                              {chat.sources.map(
+                                (source, i) => (
 
-                        </div>
+                                  <li
+                                    key={i}
+                                    className="text-sm text-gray-700"
+                                  >
+                                    📄 {source}
+                                  </li>
 
-                      )}
+                                )
+                              )}
+
+                            </ul>
+
+                          </div>
+
+                        )}
+
+                      </div>
 
                     </div>
 
                   </div>
 
-                </div>
+                ))}
 
-              ))}
+                <div ref={chatEndRef}></div>
 
-              <div ref={chatEndRef}></div>
+              </div>
 
             </div>
 
@@ -478,8 +574,7 @@ Chunks Stored: ${response.data.chunks_stored}`
 
         </div>
 
-      </div>
-
     </main>
-  );
+    </>
+    );
 }
