@@ -102,7 +102,7 @@ def health():
 async def upload_file(
     file: UploadFile = File(...)
 ):
-
+    
     import os
 
     os.makedirs(
@@ -196,11 +196,9 @@ def get_documents():
     return {
         "documents": files
     }
-    
+
 @app.delete("/documents/{filename}")
-def delete_document(
-    filename: str
-):
+def delete_document(filename: str):
 
     import os
 
@@ -209,13 +207,22 @@ def delete_document(
         filename
     )
 
-    if os.path.exists(
-        file_path
-    ):
+    print("\n========== DELETE DEBUG ==========")
 
-        os.remove(
-            file_path
-        )
+    before = collection.get(
+        where={
+            "source": filename
+        }
+    )
+
+    print(
+        "Chunks BEFORE delete:",
+        len(before["ids"])
+    )
+
+    if os.path.exists(file_path):
+
+        os.remove(file_path)
 
         collection.delete(
             where={
@@ -223,12 +230,23 @@ def delete_document(
             }
         )
 
+        after = collection.get(
+            where={
+                "source": filename
+            }
+        )
+
+        print(
+            "Chunks AFTER delete:",
+            len(after["ids"])
+        )
+
+        print("=================================\n")
+
         return {
-            "message":
-            f"{filename} deleted"
+            "message": f"{filename} deleted"
         }
 
     return {
-        "message":
-        "File not found"
+        "message": "File not found"
     }

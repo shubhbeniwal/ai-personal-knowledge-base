@@ -18,16 +18,12 @@ memory_collection = client.get_or_create_collection(
 
 def save_memory(text):
 
+    embedding = model.encode(text).tolist()
+
     memory_collection.add(
-
-        ids=[
-            str(uuid.uuid4())
-        ],
-
-        documents=[
-            text
-        ]
-
+        ids=[str(uuid.uuid4())],
+        documents=[text],
+        embeddings=[embedding]
     )
     
     print("\n--- SAVING MEMORY ---")
@@ -66,7 +62,7 @@ def retrieve_memory(query):
         results["distances"][0]
     ):
 
-        if distance < 1.2:
+        if distance < 0.8:
             memory_docs.append(doc)
 
     if not memory_docs:
@@ -78,7 +74,31 @@ def should_store_memory(user_message):
 
     text = user_message.lower().strip()
 
-    # Never save questions
+    question_starters = [
+        "what",
+        "who",
+        "where",
+        "when",
+        "why",
+        "how",
+        "which",
+        "can",
+        "could",
+        "would",
+        "do",
+        "does",
+        "did",
+        "is",
+        "are",
+        "am",
+        "was",
+        "were"
+    ]
+
+    for starter in question_starters:
+        if text.startswith(starter + " "):
+            return False
+
     if text.endswith("?"):
         return False
 
@@ -87,7 +107,7 @@ def should_store_memory(user_message):
         "i live",
         "my goal",
         "my birthday",
-        "my favourite"
+        "my favourite",
         "remember",
         "my name is",
         "i am",

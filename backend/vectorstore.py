@@ -42,6 +42,12 @@ def store_chunks(
         for _ in chunks
     ]
 
+    
+    print(
+        "Stored metadata:",
+        metadatas[0]
+    )
+    
     collection.add(
         ids=ids,
         embeddings=embeddings,
