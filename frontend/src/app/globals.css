@@ -258,3 +258,33 @@ body {
 
   transition: all 0.3s ease;
 }
+
+.status-light {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  display: inline-block;
+
+  animation: pulseLight 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseLight {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+    box-shadow:
+      0 0 8px currentColor,
+      0 0 16px currentColor,
+      0 0 24px currentColor;
+  }
+
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}

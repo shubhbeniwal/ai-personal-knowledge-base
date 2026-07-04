@@ -10,19 +10,58 @@ export default function Home() {
 
   const [question, setQuestion] = useState("");
 
+  const [conversations, setConversations] = useState([]);
+
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+
   const [chatHistory, setChatHistory] = useState([]);
 
   const [streamingAnswer, setStreamingAnswer] = useState("");
 
   const [loading, setLoading] = useState(false);
 
-  const [aiStatus, setAiStatus] = useState("Ready");
-
   const chatEndRef = useRef(null);
 
   const [documents, setDocuments] = useState([]);
 
   const [selectedDocuments, setSelectedDocuments] = useState([]);
+
+  useEffect(() => {
+
+    const savedConversations =
+      localStorage.getItem("memoryos_conversations");
+
+    if (savedConversations) {
+
+      const parsed =
+        JSON.parse(savedConversations);
+
+      setConversations(parsed);
+
+      if (parsed.length > 0) {
+
+        setCurrentConversationId(
+          parsed[0].id
+        );
+
+        setChatHistory(
+          parsed[0].messages
+        );
+
+      }
+
+    }
+
+  }, []);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "memoryos_conversations",
+      JSON.stringify(conversations)
+    );
+
+  }, [conversations]);
 
   useEffect(() => {
 
@@ -147,6 +186,29 @@ Chunks Stored: ${response.data.chunks_stored}`
 
     if (!question.trim()) return;
 
+    if (!currentConversationId) {
+
+      const newConversation = {
+
+        id: Date.now(),
+
+        title: question.slice(0, 30),
+
+        messages: []
+
+      };
+
+      setConversations((prev) => [
+        newConversation,
+        ...prev
+      ]);
+
+      setCurrentConversationId(
+        newConversation.id
+      );
+
+    }
+
     setLoading(true);
 
     try {
@@ -221,9 +283,9 @@ Chunks Stored: ${response.data.chunks_stored}`
 
       }
 
-      setChatHistory((prev) => [
+      const updatedMessages = [
 
-        ...prev,
+        ...chatHistory,
 
         {
           question: userQuestion,
@@ -231,7 +293,28 @@ Chunks Stored: ${response.data.chunks_stored}`
           sources: sources
         }
 
-      ]);
+      ];
+
+      setChatHistory(
+        updatedMessages
+      );
+
+      setConversations((prev) =>
+
+        prev.map((conv) =>
+
+          conv.id === currentConversationId
+
+            ? {
+                ...conv,
+                messages: updatedMessages
+              }
+
+            : conv
+
+        )
+
+      );
 
       setStreamingAnswer("");
 
@@ -246,6 +329,84 @@ Chunks Stored: ${response.data.chunks_stored}`
       setLoading(false);
 
     }
+  };
+
+  const createNewChat = () => {
+
+    const newConversation = {
+
+      id: Date.now(),
+
+      title: "New Chat",
+
+      messages: []
+
+    };
+
+    const updatedConversations = [
+
+      newConversation,
+
+      ...conversations
+
+    ];
+
+    setConversations(
+      updatedConversations
+    );
+
+    setCurrentConversationId(
+      newConversation.id
+    );
+
+    setChatHistory([]);
+
+  };
+
+  const loadConversation = (conversation) => {
+
+    setCurrentConversationId(
+      conversation.id
+    );
+
+    setChatHistory(
+      conversation.messages
+    );
+
+  };
+
+
+  const deleteConversation = (id) => {
+
+    const updated = conversations.filter(
+      (conversation) =>
+        conversation.id !== id
+    );
+
+    setConversations(updated);
+
+    if (currentConversationId === id) {
+
+      if (updated.length > 0) {
+
+        setCurrentConversationId(
+          updated[0].id
+        );
+
+        setChatHistory(
+          updated[0].messages
+        );
+
+      } else {
+
+        setCurrentConversationId(null);
+
+        setChatHistory([]);
+
+      }
+
+    }
+
   };
 
   return (
@@ -272,28 +433,40 @@ Chunks Stored: ${response.data.chunks_stored}`
                 <p className="text-xl text-gray-400 max-w-3xl">
                   Your personal AI memory system.
                   Upload documents, store knowledge and retrieve information instantly.
-                </p>
+                </p>  
 
               </div>
 
               <div className="glass rounded-3xl p-6 min-w-[260px]">
 
                 <div className="text-sm text-gray-400 mb-3">
-                  SYSTEM STATUS
+                  SYSTEM HEALTH
                 </div>
 
                 <div className="space-y-2">
 
-                  <div className="text-green-400 font-medium">
-                    ● Memory Engine Active
+                  <div className="flex items-center gap-2 text-green-400 font-medium">
+                    <span
+                      className="status-light bg-green-400"
+                      style={{ animationDelay: "0s" }}
+                    ></span>
+                    Memory Engine Active
                   </div>
 
-                  <div className="text-blue-400 font-medium">
-                    ● Vector Search Online
+                  <div className="flex items-center gap-2 text-blue-400 font-medium">
+                    <span
+                      className="status-light bg-blue-400"
+                      style={{ animationDelay: "0.4s" }}
+                    ></span>
+                    Vector Search Online
                   </div>
 
-                  <div className="text-purple-400 font-medium">
-                    ● AI Ready
+                  <div className="flex items-center gap-2 text-purple-400 font-medium">
+                    <span
+                      className="status-light bg-purple-400"
+                      style={{ animationDelay: "0.8s" }}
+                    ></span>
+                    AI Ready
                   </div>
 
                 </div>
@@ -328,11 +501,88 @@ Chunks Stored: ${response.data.chunks_stored}`
 
           {/* MAIN GRID */}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             {/* LEFT PANEL */}
+            <div className="lg:col-span-2 glass rounded-3xl p-5">
 
-            <div className="glass rounded-3xl p-8">
+              <h3 className="font-bold text-xl mb-4">
+                Conversations
+              </h3>
+
+              <button
+                onClick={createNewChat}
+                className="
+                h-fit
+                px-4
+                py-2
+                rounded-xl
+                bg-gradient-to-r
+                from-blue-500
+                to-purple-600
+                text-white
+                font-semibold
+                hover:scale-105
+                transition
+                "
+              >
+                + New Chat
+              </button>
+
+              <div className="space-y-2">
+
+                {conversations.map((conversation) => (
+
+                  <div
+                    key={conversation.id}
+                    className="flex items-center gap-2"
+                  >
+
+                    <button
+                      onClick={() =>
+                        loadConversation(conversation)
+                      }
+                      className={`
+                        flex-1
+                        text-left
+                        p-3
+                        rounded-xl
+                        ${
+                          currentConversationId === conversation.id
+                            ? "bg-purple-600 text-white"
+                            : "bg-white/5 hover:bg-white/10"
+                        }
+                      `}
+                    >
+                      {conversation.title}
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteConversation(
+                          conversation.id
+                        )
+                      }
+                      className="
+                      w-10
+                      h-10
+                      rounded-xl
+                      bg-red-500/20
+                      hover:bg-red-500/40
+                      "
+                    >
+                      🗑️
+                    </button>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+            <div className="lg:col-span-3 glass rounded-3xl p-8">
 
               <h2 className="text-3xl font-bold mb-2">
                 Memory Vault
@@ -447,7 +697,7 @@ Chunks Stored: ${response.data.chunks_stored}`
 
             {/* RIGHT PANEL */}
 
-            <div className="lg:col-span-2 glass rounded-3xl p-8">
+            <div className="lg:col-span-7 glass rounded-3xl p-8">
 
               <div className="flex justify-between items-center mb-6">
 
