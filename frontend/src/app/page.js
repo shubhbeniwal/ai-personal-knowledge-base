@@ -170,8 +170,20 @@ export default function Home() {
 Chunks Stored: ${response.data.chunks_stored}`
       );
 
+      setTimeout(() => {
+
+        setUploadStatus("");
+
+      }, 3000);
+
       fetchDocuments();
 
+      setFile(null);
+
+      setTimeout(() => {
+        setUploadStatus("");
+      }, 3000);
+      
     } catch (error) {
 
       console.error(error);
@@ -179,6 +191,12 @@ Chunks Stored: ${response.data.chunks_stored}`
       setUploadStatus(
         "Upload Failed"
       );
+
+      setTimeout(() => {
+
+        setUploadStatus("");
+
+      }, 3000);
     }
   };
 
@@ -513,6 +531,8 @@ Chunks Stored: ${response.data.chunks_stored}`
               <button
                 onClick={createNewChat}
                 className="
+                mb-6
+                whitespace-nowrap
                 h-fit
                 px-4
                 py-2
@@ -564,8 +584,8 @@ Chunks Stored: ${response.data.chunks_stored}`
                         )
                       }
                       className="
-                      w-10
-                      h-10
+                      w-9
+                      h-9
                       rounded-xl
                       bg-red-500/20
                       hover:bg-red-500/40
@@ -596,15 +616,38 @@ Chunks Stored: ${response.data.chunks_stored}`
 
               <div className="mb-6">
 
-                <input
-                  type="file"
-                  onChange={(e) => {
-                    setFile(e.target.files[0]);
-                  }}
-                  className="mb-4 w-full"
-                />
+                <label
+                  className="
+                    mb-6
+                    cursor-pointer
+                    flex
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    border
+                    border-white/10
+                    bg-white/5
+                    p-4
+                    text-white
+                    hover:bg-white/10
+                    transition
+                  "
+                >
+
+                  📄 {file ? file.name : "Choose Document"}
+
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) =>
+                      setFile(e.target.files[0])
+                    }
+                  />
+
+                </label>
 
                 <button
+                  disabled={!file}
                   onClick={uploadFile}
                   className="
                   w-full
@@ -726,6 +769,22 @@ Chunks Stored: ${response.data.chunks_stored}`
                 onChange={(e) =>
                   setQuestion(e.target.value)
                 }
+
+                onKeyDown={(e) => {
+
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  question.trim()
+                ) {
+
+                  e.preventDefault();
+
+                  askQuestion();
+
+                }
+
+              }}
                 rows="4"
                 placeholder="Ask a question..."
                 className="
