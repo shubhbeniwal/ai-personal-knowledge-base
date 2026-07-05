@@ -28,6 +28,8 @@ export default function Home() {
 
   const fileInputRef = useRef(null);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
 
     const savedConversations =
@@ -78,7 +80,7 @@ export default function Home() {
     try {
 
       const response = await axios.get(
-        "http://127.0.0.1:8000/documents"
+        `${API_URL}/documents`
       );
 
       setDocuments(
@@ -126,7 +128,7 @@ export default function Home() {
     try {
 
       await axios.delete(
-        `http://127.0.0.1:8000/documents/${filename}`
+        `${API_URL}/documents/${filename}`
       );
 
       fetchDocuments();
@@ -163,7 +165,7 @@ export default function Home() {
       );
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/upload",
+        `${API_URL}/upload`,
         formData
       );
 
@@ -244,7 +246,7 @@ Chunks Stored: ${response.data.chunks_stored}`
       setStreamingAnswer("");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/ask-stream",
+        `${API_URL}/ask-stream`,
         {
           method: "POST",
 
