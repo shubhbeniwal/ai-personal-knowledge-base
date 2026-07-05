@@ -26,6 +26,8 @@ export default function Home() {
 
   const [selectedDocuments, setSelectedDocuments] = useState([]);
 
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
 
     const savedConversations =
@@ -180,10 +182,14 @@ Chunks Stored: ${response.data.chunks_stored}`
 
       setFile(null);
 
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       setTimeout(() => {
         setUploadStatus("");
       }, 3000);
-      
+
     } catch (error) {
 
       console.error(error);
@@ -637,6 +643,7 @@ Chunks Stored: ${response.data.chunks_stored}`
                   📄 {file ? file.name : "Choose Document"}
 
                   <input
+                    ref={fileInputRef}
                     type="file"
                     className="hidden"
                     onChange={(e) =>
