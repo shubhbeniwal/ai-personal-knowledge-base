@@ -410,3 +410,9 @@ def ask_rag_stream(
             full_answer += text
 
             yield text
+            
+    yield "\n[SOURCES]\n"
+
+    for source in list(set(sources)):
+
+        yield source + "\n"
