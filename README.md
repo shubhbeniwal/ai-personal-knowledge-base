@@ -1,3 +1,4 @@
+<img width="796" height="427" alt="image" src="https://github.com/user-attachments/assets/be282bb4-575c-48f4-81b1-e32feee703a1" />
 # 🧠 MemoryOS — Personal AI Knowledge Base
 
 **MemoryOS** is an AI-powered personal knowledge management system that allows users to upload documents, chat with their knowledge base, remember personal facts, and retrieve information using semantic search, keyword search, and conversational memory.
